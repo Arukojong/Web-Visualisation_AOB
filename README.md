@@ -3,7 +3,7 @@
 ## Background
 
 The goal of this work include the use HTML and CSS technology to create a dashboard showing off the analysis done on wearther data scraped using weather API. Data on Temperature, humidity,cloudiness and wind speed as a function of cities (latitude and altitude) acoss the world was obtained through scraping openweathermap APIs.
-Use proper labeling, matplotlib was used to plot graghs for each weather parameter in relation to latitude of the cities as in
+Using proper labeling, matplotlib was used to plot graghs for each weather parameter in relation to latitude for various cities across the world with considered range
 (Resources/assets/images/fig1)
 
 ## Latitude - Latitude Analysis Dashboard with Attitude
