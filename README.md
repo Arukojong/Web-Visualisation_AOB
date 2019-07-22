@@ -1,347 +1,110 @@
-# WeatherPy
-## Analysis
+# Unit 12 | Assignment - Web Visualization Dashboard (Latitude)
 
-* As expected, the weather becomes significantly warmer as one approaches the equator (0 Deg. Latitude). More interestingly, however, is the fact that the southern hemisphere tends to be warmer this time of year than the northern hemisphere. This may be due to the tilt of the earth.
-* There is no strong relationship between latitude and cloudiness, however, it is interesting to see that a strong band of cities sits at 0, 80, and 100% cloudiness.
-* There is no strong relationship between latitude and wind speed, however in northern hemispheres there is a flurry of cities with over 20 mph of wind.
+## Background
 
-```python
-# Dependencies and Setup
-import matplotlib.pyplot as plt
-import pandas as pd
-import numpy as np
-import requests
-import time
-import urllib
+Data is more powerful when we share it with others! Let's take what we've learned about HTML and CSS to create a dashboard showing off the analysis we've done.
 
-# Incorporated citipy to determine city based on latitude and longitude
-from citipy import citipy
+![Images/landingResize.png](Images/landingResize.png)
 
-# Output File (CSV)
-output_data_file = "output_data/cities.csv"
+## Latitude - Latitude Analysis Dashboard with Attitude
 
-# Range of latitudes and longitudes
-lat_range = (-90, 90)
-lng_range = (-180, 180)
-```
+For this homework we'll be creating a visualization dashboard website using visualizations we've created in a past assignment. Specifically, we'll be plotting [weather data](Resources/cities.csv).
 
-## Generate Cities List
+In building this dashboard, we'll create individual pages for each plot and a means by which we can navigate between them. These pages will contain the visualizations and their corresponding explanations. We'll also have a landing page, a page where we can see a comparison of all of the plots, and another page where we can view the data used to build them.
 
-```python
-# List for holding lat_lngs and cities
-lat_lngs = []
-cities = []
+### Website Requirements
 
-# Create a set of random lat and lng combinations
-lats = np.random.uniform(low=-90.000, high=90.000, size=1500)
-lngs = np.random.uniform(low=-180.000, high=180.000, size=1500)
-lat_lngs = zip(lats, lngs)
+For reference, see the ["Screenshots" section](#screenshots) below.
 
-# Identify nearest city for each lat, lng combination
-for lat_lng in lat_lngs:
-    city = citipy.nearest_city(lat_lng[0], lat_lng[1]).city_name
+The website must consist of 7 pages total, including:
 
-    # If the city is unique, then add it to a our cities list
-    if city not in cities:
-        cities.append(city)
+* A [landing page](#landing-page) containing:
+  * An explanation of the project.
+  * Links to each visualizations page.
+* Four [visualization pages](#visualization-pages), each with:
+  * A descriptive title and heading tag.
+  * The plot/visualization itself for the selected comparison.
+  * A paragraph describing the plot and its significance.
+* A ["Comparisons" page](#comparisons-page) that:
+  * Contains all of the visualizations on the same page so we can easily visually compare them.
+  * Uses a bootstrap grid for the visualizations.
+    * The grid must be two visualizations across on screens medium and larger, and 1 across on extra-small and small screens.
+* A ["Data" page](#data-page) that:
+  * Displays a responsive table containing the data used in the visualizations.
+    * The table must be a bootstrap table component.
+    * The data must come from exporting the `.csv` file as HTML, or converting it to HTML. You may use a csv-to-html table conversion tool, e.g. [ConvertCSV](http://www.convertcsv.com/csv-to-html.htm).
 
-# Print the city count to confirm sufficient count
-len(cities)
-    620
-```
+The website must, at the top of every page, have a navigation menu that:
 
-## Perform API Calls
+* Has the name of the site on the left of the nav which allows users to return to the landing page from any page.
+* Contains a dropdown on the right of the navbar named "Plots" which provides links to each individual visualization page.
+* Provides two more links on the right: "Comparisons" which links to the comparisons page, and "Data" which links to the data page.
+* Is responsive (using media queries). The nav must have similar behavior as the screenshots ["Navigation Menu" section](#navigation-menu) (notice the background color change).
 
-```python
-# OpenWeatherMap API Key
-api_key = "YOUR KEY HERE!"
+Finally, the website must be deployed to GitHub pages.
 
-# Starting URL for Weather Map API Call
-url = "http://api.openweathermap.org/data/2.5/weather?units=Imperial&APPID=" + api_key
+When finished, submit to BootcampSpot the links to 1) the deployed app and 2) the GitHub repository.
 
-# List of city data
-city_data = []
+### Considerations
 
-# Print to logger
-print("Beginning Data Retrieval     ")
-print("-----------------------------")
+* You may use the [weather data](Resources/cities.csv) or choose another dataset. Alternatively, you may use the included [cities dataset](Resources/cities.csv) and pull the images from the [assets folder](Resources/assets).
+* You must use bootstrap. This includes using the bootstrap `navbar` component for the header on every page, the bootstrap table component for the data page, and the bootstrap grid for responsiveness on the comparison page.
+* You must deploy your website to GitHub pages, with the website working on a live, publicly accessible URL as a result.
+* Be sure to use a CSS media query for the navigation menu.
+* Be sure your website works at all window widths/sizes.
+* Feel free to take some liberty in the visual aspects, but keep the core functionality the same.
 
-# Create counters
-record_count = 1
-set_count = 1
+### Bonuses
 
-# Loop through all the cities in our list
-for i, city in enumerate(cities):
+* Use a different dataset! The requirements above still hold, but make it your own.
+* Use a bootstrap theme to customize your website. You may use a tool like [Bootswatch](https://bootswatch.com/). Make it look snazzy, give it some attitude. If using this, be sure you also meet all of the requirements listed above.
+* Add extra visualizations! The more comparisons the better, right?
+* Use meaningful glyphicons next to links in the header.
+* Have visualization navigation on every visualizations page with an active state. See the screenshots below.
 
-    # Group cities in sets of 50 for logging purposes
-    if (i % 50 == 0 and i >= 50):
-        set_count += 1
-        record_count = 0
+### Screenshots
 
-    # Create endpoint URL with each city
-    city_url = url + "&q=" + urllib.request.pathname2url(city)
+This section contains screenshots of each page that must be built, at varying screen widths. These are a guide; you can meet the requirements without having the pages look exactly like the below images.
 
-    # Log the url, record, and set numbers
-    print("Processing Record %s of Set %s | %s" % (record_count, set_count, city))
+#### Landing page
 
-    # Add 1 to the record count
-    record_count += 1
+Large screen:
+![Landing page large screen](Images/landing-lg.png)
 
-    # Run an API request for each of the cities
-    try:
-        # Parse the JSON and retrieve data
-        city_weather = requests.get(city_url).json()
+Small screen:
+![Landing page small screen](Images/landing-sm.png)
+?
 
-        # Parse out the max temp, humidity, and cloudiness
-        city_lat = city_weather["coord"]["lat"]
-        city_lng = city_weather["coord"]["lon"]
-        city_max_temp = city_weather["main"]["temp_max"]
-        city_humidity = city_weather["main"]["humidity"]
-        city_clouds = city_weather["clouds"]["all"]
-        city_wind = city_weather["wind"]["speed"]
-        city_country = city_weather["sys"]["country"]
-        city_date = city_weather["dt"]
+#### Comparisons page
 
-        # Append the City information into city_data list
-        city_data.append({"City": city,
-                          "Lat": city_lat,
-                          "Lng": city_lng,
-                          "Max Temp": city_max_temp,
-                          "Humidity": city_humidity,
-                          "Cloudiness": city_clouds,
-                          "Wind Speed": city_wind,
-                          "Country": city_country,
-                          "Date": city_date})
+Large screen:
+![comparison page large screen](Images/comparison-lg.png)
 
-    # If an error is experienced, skip the city
-    except:
-        print("City not found. Skipping...")
-        pass
+Small screen:
+![comparison page small screen](Images/comparison-sm.png)
 
-# Indicate that Data Loading is complete
-print("-----------------------------")
-print("Data Retrieval Complete      ")
-print("-----------------------------")
+#### Data page
 
-Beginning Data Retrieval
------------------------------
-Processing Record 1 of Set 1 | lompoc
-Processing Record 2 of Set 1 | klaksvik
-Processing Record 3 of Set 1 | bisignano
-Processing Record 4 of Set 1 | bengkulu
-City not found. Skipping...
-Processing Record 5 of Set 1 | hilo
-Processing Record 6 of Set 1 | rikitea
-Processing Record 7 of Set 1 | ahipara
-Processing Record 8 of Set 1 | lebu
-Processing Record 9 of Set 1 | hamilton
-Processing R
------------------------------
+Large screen:
+![data page large screen](Images/data-lg.png)
 
-# Convert array of JSONs into Pandas DataFrame
-city_data_pd = pd.DataFrame(city_data)
+Small screen:
+![data page small screen](Images/data-sm.png)
 
-# Extract relevant fields from the data frame
-lats = city_data_pd["Lat"]
-max_temps = city_data_pd["Max Temp"]
-humidity = city_data_pd["Humidity"]
-cloudiness = city_data_pd["Cloudiness"]
-wind_speed = city_data_pd["Wind Speed"]
+#### Visualization pages
 
-# Export the City_Data into a csv
-city_data_pd.to_csv(output_data_file, index_label="City_ID")
+You'll build four of these, one for each visualization. Here's an example of one:
 
-# Show Record Count
-city_data_pd.count()
+Large screen:
+![visualize page large screen](Images/visualize-lg.png)
 
-    City          616
-    Cloudiness    616
-    Country       616
-    Date          616
-    Humidity      616
-    Lat           616
-    Lng           616
-    Max Temp      616
-    Wind Speed    616
-    dtype: int64
+Small screen:
+![visualize page small screen](Images/visualize-sm.png)
 
-# Display the City Data Frame
-city_data_pd.head()
-```
+#### Navigation menu
 
-<div>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>City</th>
-      <th>Cloudiness</th>
-      <th>Country</th>
-      <th>Date</th>
-      <th>Humidity</th>
-      <th>Lat</th>
-      <th>Lng</th>
-      <th>Max Temp</th>
-      <th>Wind Speed</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>longyearbyen</td>
-      <td>75</td>
-      <td>SJ</td>
-      <td>1483588200</td>
-      <td>73</td>
-      <td>78.22</td>
-      <td>15.64</td>
-      <td>26.6</td>
-      <td>19.46</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>asau</td>
-      <td>0</td>
-      <td>RO</td>
-      <td>1483592400</td>
-      <td>59</td>
-      <td>46.43</td>
-      <td>26.40</td>
-      <td>37.4</td>
-      <td>14.99</td>
-    </tr>
-    <tr>
-      <th>2</th>
-      <td>hartselle</td>
-      <td>1</td>
-      <td>US</td>
-      <td>1483592280</td>
-      <td>86</td>
-      <td>34.44</td>
-      <td>-86.94</td>
-      <td>32.0</td>
-      <td>3.36</td>
-    </tr>
-    <tr>
-      <th>3</th>
-      <td>komsomolskiy</td>
-      <td>40</td>
-      <td>UZ</td>
-      <td>1483592400</td>
-      <td>80</td>
-      <td>40.43</td>
-      <td>71.72</td>
-      <td>37.4</td>
-      <td>3.36</td>
-    </tr>
-    <tr>
-      <th>4</th>
-      <td>kapaa</td>
-      <td>90</td>
-      <td>US</td>
-      <td>1483592160</td>
-      <td>88</td>
-      <td>22.08</td>
-      <td>-159.32</td>
-      <td>71.6</td>
-      <td>17.22</td>
-    </tr>
-  </tbody>
-</table>
-</div>
+Large screen:
+![nav menu large screen](Images/nav-lg.png)
 
-## Latitude vs. Temperature Plot
-
-```python
-# Build scatter plot for latitude vs. temperature
-plt.scatter(lats,
-            max_temps,
-            edgecolor="black", linewidths=1, marker="o",
-            alpha=0.8, label="Cities")
-
-# Incorporate the other graph properties
-plt.title("City Latitude vs. Max Temperature (%s)" % time.strftime("%x"))
-plt.ylabel("Max Temperature (F)")
-plt.xlabel("Latitude")
-plt.grid(True)
-
-# Save the figure
-plt.savefig("output_data/Fig1.png")
-
-# Show plot
-plt.show()
-```
-
-![png](output_data/Fig1.png)
-
-## Latitude vs. Humidity Plot
-
-```python
-# Build the scatter plots for latitude vs. humidity plot
-plt.scatter(lats,
-            humidity,
-            edgecolor="black", linewidths=1, marker="o",
-            alpha=0.8, label="Cities")
-
-# Incorporate the other graph properties
-plt.title("City Latitude vs. Humidity (%s)" % time.strftime("%x"))
-plt.ylabel("Humidity (%)")
-plt.xlabel("Latitude")
-plt.grid(True)
-
-# Save the figure
-plt.savefig("output_data/Fig2.png")
-
-# Show plot
-plt.show()
-```
-
-![png](output_data/Fig2.png)
-
-## Latitude vs. Cloudiness Plot
-
-```python
-# Build the scatter plots for latitude vs. cloudiness plot
-plt.scatter(lats,
-            cloudiness,
-            edgecolor="black", linewidths=1, marker="o",
-            alpha=0.8, label="Cities")
-
-# Incorporate the other graph properties
-plt.title("City Latitude vs. Cloudiness (%s)" % time.strftime("%x"))
-plt.ylabel("Cloudiness (%)")
-plt.xlabel("Latitude")
-plt.grid(True)
-
-# Save the figure
-plt.savefig("output_data/Fig3.png")
-
-# Show plot
-plt.show()
-```
-
-![png](output_data/Fig2.png)
-
-## Latitude vs. Wind Speed Plot
-
-```python
-# Build the scatter plots for latitude vs. wind speed plot
-plt.scatter(lats,
-            wind_speed,
-            edgecolor="black", linewidths=1, marker="o",
-            alpha=0.8, label="Cities")
-
-# Incorporate the other graph properties
-plt.title("City Latitude vs. Wind Speed (%s)" % time.strftime("%x"))
-plt.ylabel("Wind Speed (mph)")
-plt.xlabel("Latitude")
-plt.grid(True)
-
-# Save the figure
-plt.savefig("output_data/Fig4.png")
-
-# Show plot
-plt.show()
-```
-
-![png](output_data/Fig2.png)
+Small screen:
+![nav menu small screen](Images/nav-sm.png)
